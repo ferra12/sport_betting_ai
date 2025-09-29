@@ -1,0 +1,22 @@
+[project]
+name = "betting-ai"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "ferra12",email = "ferrazzo.edoardo@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic (>=2.11.9,<3.0.0)",
+    "pydantic-settings (>=2.11.0,<3.0.0)",
+    "pymongo (>=4.15.1,<5.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "betting_ai", from = "src"}]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
