@@ -37,3 +37,14 @@ repos:
       - id: mypy
         additional_dependencies: [pydantic]
         args: ["--ignore-missing-imports"]
+
+  # Test con pytest (usando poetry)
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        entry: poetry run pytest
+        language: system
+        types: [python]
+        pass_filenames: false
+        args: ["-q", "--disable-warnings", "--maxfail=1"]
