@@ -17,7 +17,10 @@ class Logger:
 
         handler = logging.StreamHandler(sys.stdout)
         formatter = logging.Formatter(
-            fmt="[%(filename)s:%(lineno)d] : %(asctime)s - %(levelname)s - %(message)s ",
+            fmt=(
+                "[%(filename)s:%(lineno)d] : %(asctime)s - "
+                "%(levelname)s - %(message)s "
+            ),
             datefmt="%Y-%m-%d %H:%M:%S",
         )
         handler.setFormatter(formatter)

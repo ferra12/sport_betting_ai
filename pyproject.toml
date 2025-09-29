@@ -16,6 +16,14 @@ dependencies = [
 [tool.poetry]
 packages = [{include = "betting_ai", from = "src"}]
 
+[tool.black]
+line-length = 88
+
+[tool.flake8]
+max-line-length = 88
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^4.3.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

@@ -1,10 +1,12 @@
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
+
 from ..utils.logging import logger
 
 
 class MongoConnection:
     """Gestisce una sola connessione condivisa (singleton)."""
+
     _client = None
 
     @classmethod
@@ -17,22 +19,26 @@ class MongoConnection:
 
 class MongoDBManager:
     """Gestore di una specifica collezione."""
+
     def __init__(self, uri: str, db_name: str, collection_name: str):
         client = MongoConnection.get_client(uri)
         self._db = client[db_name]
         self._collection = self._db[collection_name]
         logger.debug(
-            f"MongoDBManager collegato al database '{db_name}', collezione '{collection_name}'"
+            f"""MongoDBManager collegato al database '{db_name}',
+            collezione '{collection_name}'"""
         )
 
     def find(self, query: dict, limit: int = 0):
         """
-        Esegue una query sulla collezione specificata e restituisce i risultati.
-        
+        Esegue una query sulla collezione specificata e
+        restituisce i risultati.
+
         Parametri:
             query (dict): Filtro della query.
-            limit (int, opzionale): Numero massimo di risultati da restituire.
-        
+            limit (int, opzionale): Numero massimo di
+                risultati da restituire.
+
         Ritorna:
             list: Risultato della query.
         """
@@ -43,13 +49,15 @@ class MongoDBManager:
 
     def find_one(self, query: dict):
         """
-        Esegue una query sulla collezione specificata e restituisce il primo risultato trovato.
-        
+        Esegue una query sulla collezione specificata e
+        restituisce il primo risultato trovato.
+
         Parametri:
             query (dict): Filtro della query.
-        
+
         Ritorna:
-            dict: Il primo documento trovato, o None se non esiste.
+            dict: Il primo documento trovato,
+                o None se non esiste.
         """
         return self._collection.find_one(query)
 
@@ -79,13 +87,15 @@ class MongoDBManager:
 
     def delete_by_query(self, query: dict, many: bool = False) -> int:
         """
-        Elimina elementi dalla collezione specificata sulla base di un filtro di query.
-        
+        Elimina elementi dalla collezione specificata
+        sulla base di un filtro di query.
+
         Parametri:
             query (dict): Filtro della query.
-            many (bool, opzionale): Se True, elimina tutti gli elementi corrispondenti.
+            many (bool, opzionale): Se True, elimina
+                tutti gli elementi corrispondenti.
                 Se False, elimina solo il primo elemento corrispondente.
-        
+
         Ritorna:
             int: Numero di elementi eliminati.
         """

@@ -1,5 +1,6 @@
 import pydantic
 
+
 class Bet(pydantic.BaseModel):
     team1: str
     team2: str
@@ -8,4 +9,3 @@ class Bet(pydantic.BaseModel):
     date: str
     sport: str
     league: str
-
