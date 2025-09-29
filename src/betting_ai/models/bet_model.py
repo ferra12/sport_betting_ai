@@ -6,6 +6,7 @@ class Bet(pydantic.BaseModel):
     team2: str
     quote: float
     result: str
-    date: str
+    date_place: str
+    date_event: str
     sport: str
     league: str
