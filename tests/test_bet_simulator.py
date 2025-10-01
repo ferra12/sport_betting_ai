@@ -6,18 +6,23 @@ from betting_ai.models.bet_model import Bet
 
 # Dummy bet per i test
 def sample_bet():
-    return Bet(
+    bet = Bet(
         team1="Milan",
         team2="Inter",
         bet_option="1",
+        bet_label="1X2",
         quote=1.95,
-        result="pending",
+        result=-1,
         date_place="2025-09-29",
         date_event="2025-09-30",
         sport="calcio",
+        sport_id=1,
         league="Serie A",
-        _expire_after=3600,
+        event_id=0,
+        league_id=209,
+        expire_after=3600,
     )
+    return bet
 
 
 @pytest.fixture

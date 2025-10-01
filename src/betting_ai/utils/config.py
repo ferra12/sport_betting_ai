@@ -3,7 +3,7 @@ from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class Config(BaseSettings):
+class Config(BaseSettings):  # type: ignore[misc]
     """Classe di configurazione per l'applicazione usando Pydantic v2."""
 
     mongo_uri: str = Field(..., alias="MONGODB_URI")

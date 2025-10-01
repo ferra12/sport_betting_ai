@@ -1,16 +1,30 @@
-from typing import Optional
+from typing import Literal, Optional
 
-import pydantic
+from pydantic import BaseModel
 
 
-class Bet(pydantic.BaseModel):
+class Bet(BaseModel):
     team1: str
     team2: str
     bet_option: str
+    bet_label: str
     quote: float
-    result: str
+    result: Literal[-1, 0, 1]
     date_place: str
     date_event: str
+    sport_id: int
     sport: str
+    league_id: int
     league: str
-    _expire_after: Optional[int]
+    event_id: int
+    expire_after: Optional[int]
+
+
+class BetMap(BaseModel):
+    sport_id: str
+    bet_id: str
+    bet_desc: str
+    outcomes: list[str]
+    outcomes_id: list[int]
+    threshold: str
+    expire_after: Optional[int]
