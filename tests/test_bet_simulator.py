@@ -9,12 +9,14 @@ def sample_bet():
     return Bet(
         team1="Milan",
         team2="Inter",
+        bet_option="1",
         quote=1.95,
         result="pending",
         date_place="2025-09-29",
         date_event="2025-09-30",
         sport="calcio",
         league="Serie A",
+        _expire_after=3600,
     )
 
 
