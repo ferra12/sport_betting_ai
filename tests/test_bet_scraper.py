@@ -189,9 +189,8 @@ def test_get_clean_bets_unit(save_to_file, sample_match_quotes):
         assert "outcomes_id" in saved[0]
 
 
-def test_update_covered_bets_integration(sample_clean_bets):
-
+def test_insert_covered_bets_integration(sample_clean_bets):
     scraper = BetScraper()
-    scraper.update_covered_bets(sample_clean_bets)
+    scraper.insert_covered_bets(sample_clean_bets)
     assert sample_clean_bets[0]["sport_id"] == 0
     assert sample_clean_bets[0]["bet_id"] == 0

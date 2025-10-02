@@ -59,6 +59,21 @@ class BetScraper:
         return data
 
     def get_match_quotes(self, schedule_id, event_id):
+        """
+        Richiede le quote per un evento dato il suo ID di schedule e di evento.
+
+        Parameters
+        ----------
+        schedule_id : int
+            ID dello schedule dell'evento
+        event_id : int
+            ID dell'evento
+
+        Returns
+        -------
+        dict
+            Dizionario contenente le quote dell'evento
+        """
         response = requests.get(
             self.uri_match.format(schedule_id=schedule_id, event_id=event_id),
             params=self.params,
@@ -78,6 +93,20 @@ class BetScraper:
         }
 
     def get_clean_bets(self, match_quotes: dict) -> list[dict]:
+        """
+        Restituisce una lista di scommesse pulite da un dizionario
+        di quote proveniente dall'API Sisal.
+
+        Parameters
+        ----------
+        match_quotes : dict
+            Dizionario di quote proveniente dall'API Sisal
+
+        Returns
+        -------
+        list[dict]
+            Lista di scommesse pulite
+        """
         bets = match_quotes.get("infoAggiuntivaMap", match_quotes)
         quote_map = match_quotes.get("scommessaMap", match_quotes)
         first_value = next(iter(quote_map.values()))
@@ -96,10 +125,38 @@ class BetScraper:
             clean_bets.append(temp)
         return clean_bets
 
-    def update_covered_bets(self, clean_bets: list[dict]) -> int:
+    def insert_covered_bets(self, clean_bets: list[dict]) -> int:
         mongo_conn = MongoDBManager(
             config.mongo_uri, config.mongo_db_name, config.mongo_bet_map_collection
         )
         result = mongo_conn.insert(clean_bets, ordered=False)
         logger.debug(f"Covered bets updated: {result}")
+        return result
+
+    def get_covered_bets_from_tree_by_sport(
+        self, sport_id: int, tree: dict
+    ) -> list[dict]:
+        leagues = tree["manifestazioneListByDisciplinaTutti"][str(sport_id)]
+        bets = []
+        for league in leagues:
+            league_quotes = self.get_league_quotes(sport_id, league.split("-")[-1])
+            if league_quotes is None:
+                logger.error(
+                    f"Error getting quotes for sport {sport_id}"
+                    + " league {league.split('-')[-1]}"
+                )
+                continue
+            clean_bets = self.get_clean_bets(league_quotes)
+            bets.extend(clean_bets)
+        bets_set = {bet["bet_id"]: bet for bet in bets}
+        return list(bets_set.values())
+
+    def initialize_bet_map_by_sport(self, sport_id: int) -> int:
+        tree = self.get_bookmaker_map()
+        if tree is None:
+            logger.error("Error getting bookmaker map")
+            return 0
+        bets = self.get_covered_bets_from_tree_by_sport(sport_id, tree)
+        result = self.insert_covered_bets(bets)
+        logger.debug(f"Bet map for sport {sport_id} updated: {result}")
         return result

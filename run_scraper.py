@@ -12,9 +12,21 @@ def main():
     parser.add_argument(
         "--update_db", action="store_true", help="Aggiorna il DB con le bets del match"
     )
+    parser.add_argument(
+        "--update_bet_sport",
+        type=int,
+        help="Inizializza la bet map per lo sport specificato",
+    )
     args = parser.parse_args()
 
     scraper = BetScraper()
+
+    # Comando per inizializzare la bet map per uno sport
+    if args.update_bet_sport:
+        print(f"Inizializzando la bet map per lo sport {args.update_bet_sport}...")
+        result = scraper.initialize_bet_map_by_sport(args.update_bet_sport)
+        print(f"Bet map aggiornata, {result} bets inserite/aggiornate.")
+        return
 
     # Nessun argomento → scarica mappa completa dei bookmaker
     if not any([args.sport_id, args.league_id, args.schedule_id, args.event_id]):
@@ -23,13 +35,13 @@ def main():
         print(data)
         return
 
-    # Se forniti sport_id e league_id → scarica quote lega
+    # Quote lega
     if args.sport_id and args.league_id:
         print(f"Scaricando quote per sport {args.sport_id} lega {args.league_id}...")
         league_quotes = scraper.get_league_quotes(args.sport_id, args.league_id)
         print(league_quotes)
 
-    # Se forniti schedule_id e event_id → scarica quote match
+    # Quote match e aggiornamento DB
     if args.schedule_id and args.event_id:
         print(f"Scaricando quote per match {args.schedule_id}-{args.event_id}...")
         match_quotes = scraper.get_match_quotes(args.schedule_id, args.event_id)
