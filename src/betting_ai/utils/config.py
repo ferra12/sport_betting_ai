@@ -10,6 +10,7 @@ class Config(BaseSettings):  # type: ignore[misc]
     mongo_db_name: str = Field(..., alias="MONGODB_DB_NAME")
     mongo_bet_collection: str = Field(..., alias="MONGODB_BET_COLLECTION")
     mongo_old_bet_collection: str = Field(..., alias="MONGODB_OLD_BET_COLLECTION")
+    mongo_bet_map_collection: str = Field(..., alias="MONGODB_BET_MAP_COLLECTION")
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 

@@ -2,13 +2,13 @@ import json
 
 import pytest
 
-from betting_ai.bet_scraper.bet_scraper import SisalScraper
+from betting_ai.bet_scraper.bet_scraper import BetScraper
 
 
 @pytest.mark.parametrize("save_to_file", [True, False])
 def test_get_bookmaker_map_integration(save_to_file):
     """Test reale che interroga l'API Sisal e opzionalmente salva i dati su file."""
-    scraper = SisalScraper()
+    scraper = BetScraper()
     data = scraper.get_bookmaker_map()
 
     # Controlliamo che sia arrivato un dict valido
@@ -34,7 +34,7 @@ def test_get_bookmaker_map_integration(save_to_file):
 @pytest.mark.parametrize("save_to_file", [True, False])
 def test_get_league_quotes_integration(save_to_file):
     """Test reale che interroga l'API Sisal e opzionalmente salva i dati su file."""
-    scraper = SisalScraper()
+    scraper = BetScraper()
     data = scraper.get_league_quotes(sport_id=1, league_id=209)
 
     # Controlliamo che sia arrivato un dict valido
@@ -57,7 +57,7 @@ def test_get_league_quotes_integration(save_to_file):
 @pytest.mark.parametrize("save_to_file", [True, False])
 def test_get_match_quotes_integration(save_to_file):
     """Test reale che interroga l'API Sisal e opzionalmente salva i dati su file."""
-    scraper = SisalScraper()
+    scraper = BetScraper()
     data_league = scraper.get_league_quotes(sport_id=1, league_id=209)
 
     quote_id = list(data_league["scommessaMap"].keys())[0]
@@ -96,7 +96,7 @@ def test_get_unique_events_unit():
         }
     }
 
-    scraper = SisalScraper()
+    scraper = BetScraper()
     data = scraper.get_unique_events(mock)
 
     # Controlliamo che sia arrivato un dict valido
@@ -106,9 +106,9 @@ def test_get_unique_events_unit():
     assert data == {"35401-1630", "35401-1631"}
 
 
-@pytest.mark.parametrize("save_to_file", [True, False])
-def test_get_clean_bets_unit(save_to_file):
-    mock = {
+@pytest.fixture
+def sample_match_quotes():
+    return {
         "scommessaMap": {"35401-1636-12192": {"codiceManifestazione": 209}},
         "infoAggiuntivaMap": {
             "35401-1636-12192-150": {
@@ -145,8 +145,26 @@ def test_get_clean_bets_unit(save_to_file):
         },
     }
 
-    scraper = SisalScraper()
-    data = scraper.get_clean_bets(mock)
+
+@pytest.fixture
+def sample_clean_bets():
+    return [
+        {
+            "sport_id": 0,
+            "bet_id": 0,
+            "bet_desc": "TEST",
+            "threshold": "1.5",
+            "outcomes": ["1 + E", "X + E", "2 + E", "1 + T", "X + T", "2 + T"],
+            "outcomes_id": [1, 2, 3, 4, 5, 6],
+        }
+    ]
+
+
+@pytest.mark.parametrize("save_to_file", [True, False])
+def test_get_clean_bets_unit(save_to_file, sample_match_quotes):
+
+    scraper = BetScraper()
+    data = scraper.get_clean_bets(sample_match_quotes)
 
     # Controlliamo che sia arrivato un dict valido
     assert data is not None
@@ -169,3 +187,11 @@ def test_get_clean_bets_unit(save_to_file):
         assert "threshold" in saved[0]
         assert "outcomes" in saved[0]
         assert "outcomes_id" in saved[0]
+
+
+def test_update_covered_bets_integration(sample_clean_bets):
+
+    scraper = BetScraper()
+    scraper.update_covered_bets(sample_clean_bets)
+    assert sample_clean_bets[0]["sport_id"] == 0
+    assert sample_clean_bets[0]["bet_id"] == 0

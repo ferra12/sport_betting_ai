@@ -1,9 +1,11 @@
 import requests  # type: ignore[import]
 
+from ..conn.mongo_conn import MongoDBManager
+from ..utils.config import config
 from ..utils.logging import logger
 
 
-class SisalScraper:
+class BetScraper:
     def __init__(self):
         self.headers = {
             "Accept": "*/*",
@@ -93,3 +95,11 @@ class SisalScraper:
             ]
             clean_bets.append(temp)
         return clean_bets
+
+    def update_covered_bets(self, clean_bets: list[dict]) -> int:
+        mongo_conn = MongoDBManager(
+            config.mongo_uri, config.mongo_db_name, config.mongo_bet_map_collection
+        )
+        result = mongo_conn.insert(clean_bets, ordered=False)
+        logger.debug(f"Covered bets updated: {result}")
+        return result

@@ -21,8 +21,8 @@ class Bet(BaseModel):
 
 
 class BetMap(BaseModel):
-    sport_id: str
-    bet_id: str
+    sport_id: int
+    bet_id: int
     bet_desc: str
     outcomes: list[str]
     outcomes_id: list[int]

@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-from pymongo.errors import PyMongoError
+from pymongo.errors import BulkWriteError, PyMongoError
 
 from ..utils.logging import logger
 
@@ -61,7 +61,7 @@ class MongoDBManager:
         """
         return self._collection.find_one(query)
 
-    def insert(self, data: list):
+    def insert(self, data: list, ordered: bool = True):
         """
         Inserisce molti elementi nella collezione specificata.
 
@@ -71,7 +71,14 @@ class MongoDBManager:
         Ritorna:
             InsertManyResult: Risultato dell'inserimento.
         """
-        return self._collection.insert_many(data)
+        try:
+            return self._collection.insert_many(data, ordered=ordered)
+        except BulkWriteError as e:
+            logger.warning(
+                f"Duplicate key error, ignorati alcuni inserimenti: {e.details}"
+            )
+            # ritorna comunque quelli validi che sono stati inseriti
+            return e.details.get("nInserted", 0)
 
     def insert_one(self, data: dict):
         """
@@ -107,4 +114,34 @@ class MongoDBManager:
             return result.deleted_count
         except PyMongoError as e:
             logger.error(f"Errore durante l'eliminazione: {e}")
+            return 0
+
+    def update_by_query(
+        self, query: dict, update: dict, many: bool = False, upsert: bool = False
+    ) -> int:
+        """
+        Aggiorna uno o più documenti nella collezione specificata
+        sulla base di un filtro di query.
+
+        Parametri:
+            query (dict): Filtro della query.
+            update (dict): Operatori di aggiornamento (es. {"$set": {...}}).
+            many (bool, opzionale): Se True, aggiorna tutti gli elementi
+                                    corrispondenti.
+                                    Se False, aggiorna solo il primo elemento
+                                    corrispondente.
+            upsert (bool, opzionale): Se True, inserisce un nuovo documento se
+                                    nessuno corrisponde.
+
+        Ritorna:
+            int: Numero di documenti modificati.
+        """
+        try:
+            if many:
+                result = self._collection.update_many(query, update, upsert=upsert)
+            else:
+                result = self._collection.update_one(query, update, upsert=upsert)
+            return result.modified_count
+        except PyMongoError as e:
+            logger.error(f"Errore durante l'aggiornamento: {e}")
             return 0
